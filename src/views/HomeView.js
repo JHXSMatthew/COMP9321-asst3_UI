@@ -30,7 +30,7 @@ const flag = {
   showPageSizeOptions: false
 }
 
-export class HomeView extends Component{
+export default class HomeView extends Component{
 
   render(){
     return (

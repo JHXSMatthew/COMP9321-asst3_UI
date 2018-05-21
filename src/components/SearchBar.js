@@ -7,7 +7,7 @@ export default class SearchBar extends Component{
         <div className='container'>
           <div className='row justify-content-md-center' >
             <div className='col-md-8'>
-              <input type='text' className='form-control' placeholder='' />
+              <input type='text' className='form-control' placeholder='e.g. Australia' />
             </div>
           </div>
           <br/>

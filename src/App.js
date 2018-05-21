@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
 import Header from './components/Header';
-import { HomeView } from './views/HomeView';
+import HomeView from './views/HomeView';
+import CountryView from './views/CountryView';
+import RankingView from './views/RankingView';
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Switch
+} from 'react-router-dom'
 
 
 class App extends Component {
@@ -9,7 +17,12 @@ class App extends Component {
       <div >
           <Header />
           <br/>
-          <HomeView />
+          <Switch>
+            <Route exact path="/country" render = {() => <RankingView />}/>
+            <Route path="/country/:name" render = {() => <CountryView />}  />
+            <Route path="/" render={()=> <HomeView/>}/>
+
+          </Switch>
 
       </div>
     );
