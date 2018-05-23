@@ -31,8 +31,6 @@ const flag = {
 }
 
 export default class HomeView extends Component{
-
-
   constructor(props){
     super(props)
     this.state = {

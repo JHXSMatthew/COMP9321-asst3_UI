@@ -1,4 +1,5 @@
 import React,{Component} from 'react'
+import {Link} from 'react-router-dom'
 import {
   Collapse,
   Navbar,
@@ -32,18 +33,28 @@ export default class HeaderNav extends Component {
     return (
       <div>
         <Navbar color="light" light expand="md">
-          <NavbarBrand href="/">Vista</NavbarBrand>
+          <Link to="/">
+            <div className="navbar-brand">
+              Vista
+            </div>
+          </Link>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
-                <NavLink href="/country">Rankings</NavLink>
+                <Link to="/country">
+                 <div className="nav-link">Rankings</div>
+                </Link>
               </NavItem>
               <NavItem>
-                <NavLink href="/compare">Compare</NavLink>
+                <Link to="/compare">
+                 <div className="nav-link">Compare</div>
+                </Link>
               </NavItem>
               <NavItem>
-                <NavLink href="/about">About</NavLink>
+                <Link to="/about">
+                 <div className="nav-link">About</div>
+                </Link>
               </NavItem>
             </Nav>
           </Collapse>

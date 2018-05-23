@@ -1,9 +1,21 @@
 import React,{Component} from 'react'
 import { Chart } from 'react-google-charts';
 
+import { ENDPOINT } from '../Utils'
+import { actionUpdateCountryInfo } from '../reducers/actions';
 
 
-export default class CountryView extends Component{
+
+class CountryView extends Component{
+  constructor(props){
+    super(props)
+  }
+
+  componentWillMount(){
+    
+    
+
+  }
 
   render(){
     const data = {
@@ -84,7 +96,7 @@ class CountryInfo extends Component{
        <div>
       {/* //   <div className="card-body"> */}
           <h5 className="card-title">{country} Information</h5>
-          <CountryInfoAttribute 
+          <CountryInfoAttribute key="1"
           mapping={[
             {key:"capital",value: capital},
             {key:"Agriculture Land", value: agrland},
@@ -92,14 +104,14 @@ class CountryInfo extends Component{
           ]} 
           title="General" />
 
-          <CountryInfoAttribute 
+          <CountryInfoAttribute key="2"
           mapping={[
             {key:"CO2",value: co2},
             {key:"CH4", value: ch4},
           ]} 
           title="Environmental Indicators" />
 
-           <CountryInfoAttribute 
+           <CountryInfoAttribute key="3"
           mapping={[
             {key:"Renewable Energy",value: renewable},
             {key:"Fossie Fuel", value: fossie_fuel},
@@ -115,7 +127,7 @@ class CountryInfoAttribute extends Component{
   render(){
     const x = []
     this.props.mapping.forEach(element => {
-      x.push( <li>{element.key}: {element.value}</li>)
+      x.push( <li key={element.key}>{element.key}: {element.value}</li>)
     });
 
     return (
@@ -189,3 +201,6 @@ class CountryInfoRankingChart extends Component{
      
   }
 }
+
+export default CountryView;
+

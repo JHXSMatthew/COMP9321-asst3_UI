@@ -13,7 +13,7 @@ import {
 } from 'react-router-dom'
 import { BrowserRouter } from 'react-router-dom'
 
-import {ENDPOINT} from './Utils'
+import { ENDPOINT } from './Utils'
 
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
@@ -32,18 +32,20 @@ const mapStateToProps = (state) => ({
 class App extends Component {
   constructor(props){
     super(props)
-    
+    this.onCurrentCountrySelected = this.onCurrentCountrySelected.bind(this)
   }
 
   componentWillMount(){
+    console.log("on app mount!")
+    console.log(this.props)
     const { 
-      actionFetchCountryList,
+      actionFetchStart,
       actionFetchFail,
       actionUpdateCountryList 
     } = this.props.actions;
     const {countryList} = this.props.state;
     if(!countryList){
-      actionFetchCountryList()
+      actionFetchStart()
       fetch(ENDPOINT + '/countries').then((response)=>{
         response.json().then((data) => {
           actionUpdateCountryList(data);
@@ -58,6 +60,25 @@ class App extends Component {
     }    
   }
 
+  onCurrentCountrySelected(){
+    const {
+      actionFetchStart,actionFetchFail,actionUpdateCountryInfo
+    } = this.props.actions
+
+    actionFetchStart()
+      fetch(ENDPOINT + "/" + "Australia").then((response)=>{
+        response.json().then((data) => {
+          actionUpdateCountryInfo(data);
+        });
+      }).then((err)=>{
+        console.log(err)
+        actionFetchFail()
+      }).catch((err) =>{
+        console.log(err)
+        actionFetchFail()
+      })
+  }
+
   render() {
     const {fetching} = this.props.state
     return (
@@ -68,8 +89,8 @@ class App extends Component {
           {fetching ? <LoadingView type="spin" color="#0000ff"/> :
           <Switch>
             <Route exact path="/country" render = {() => <RankingView />}/>
-            <Route path="/country/:name" render = {() => <CountryView />}  />
-            <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList}/>}/>
+            <Route path="/country/:name" render = {() => <CountryView currentCountry={this.props.state.currentCountry} actions={this.props.actions}/>}  />
+            <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList} onSearch={this.onCurrentCountrySelected}/>}/>
           </Switch>
           }
 

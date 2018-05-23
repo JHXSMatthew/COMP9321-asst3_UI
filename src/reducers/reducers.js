@@ -2,6 +2,7 @@ import {
   TYPE_UPDATE_COUNTRY_LIST,
   TYPE_FETCH_COUNTRY_LIST,
   TYPE_FETCH_FAIL,
+  TYPE_FETCH_COUNTRY_INFO,
   actionUpdateCountryList,
   
 } from './actions'
@@ -23,6 +24,10 @@ export const reducer = (state=[], action) => {
       return Object.assign({}, state, {
         fetching: false
       });
+    case TYPE_FETCH_COUNTRY_INFO:
+      return Object.assign({}, state, {
+        currentCountryInfo: action.data
+      })
     default:
     return state;
 

@@ -11,8 +11,6 @@ import 'jquery';
 import { Provider } from 'react-redux'
 import { createStore } from 'redux'
 import { reducer } from './reducers/reducers'
-import { updateDispatcher,
-  get_country_list } from './apiController/CountryController'
 
 const store = createStore(reducer)
 

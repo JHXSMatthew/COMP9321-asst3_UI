@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Autosuggest from 'react-autosuggest';
+import {Link} from 'react-router-dom'
 
 const theme = {
   container: {
@@ -56,7 +57,6 @@ const theme = {
   }
 };
 
-// https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions#Using_Special_Characters
 function escapeRegexCharacters(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -145,9 +145,9 @@ export default class SearchBar extends Component {
         <br/>
         <div className='row justify-content-md-center'>
           <div className='col-md-4'>
-            <a  href={"/country/" + this.state.value }>  
+            <Link to={"/country/" + this.state.value }>  
               <button className='btn-primary btn-lg btn-block' >Search</button>
-           </a>
+           </Link>
           </div>
         </div>
     </div>
