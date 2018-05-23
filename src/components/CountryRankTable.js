@@ -20,6 +20,7 @@ export default class CountryRankTable extends React.Component {
           className="-striped -highlight"
           showPageSizeOptions={false}
           showPagination= {false}
+          noDataText= "Loading..."
         />
       </div>
     );

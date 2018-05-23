@@ -32,7 +32,29 @@ const flag = {
 
 export default class HomeView extends Component{
 
+
+  constructor(props){
+    super(props)
+    this.state = {
+      value: ""
+    }
+    this.onUpdate = this.onUpdate.bind(this);
+  }
+
+  onUpdate(value){
+    this.setState({value})
+  }
+
   render(){
+    const data = []
+    if(this.props.countryList && this.props.countryList.result){
+      this.props.countryList.result.forEach(element => {
+        data.push({
+          country: element.Country,
+          rank: element.id
+        })
+      });
+    }
     return (
       <div className="container">
         <div className="row">
@@ -42,12 +64,12 @@ export default class HomeView extends Component{
         </div>
         <br/>
         <div className="row" >
-          <SearchBar />
+          <SearchBar countryList={this.props.countryList} onUpdate={this.onUpdate}/>
         </div>
         <br/>
         <div className="row">
           <div className="col">
-            <CountryRankTable columns={columns} data={makeData()} flag={flag} />
+            <CountryRankTable columns={columns} data={data} flag={flag} />
           </div>
         </div>
 

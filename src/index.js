@@ -6,12 +6,24 @@ import registerServiceWorker from './registerServiceWorker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap';
 import 'jquery';
-
 import { BrowserRouter } from 'react-router-dom'
 
 
+import { Provider } from 'react-redux'
+import { createStore } from 'redux'
+import { reducer } from './reducers/reducers'
+import { updateDispatcher,
+  get_country_list } from './apiController/CountryController'
 
-ReactDOM.render( <BrowserRouter> 
-                  <App />
-                 </BrowserRouter>, document.getElementById('root'));
-registerServiceWorker();
+const store = createStore(reducer)
+
+ReactDOM.render( 
+  <Provider store={store}>
+    <BrowserRouter> 
+      <App />
+    </BrowserRouter>
+  </Provider>, document.getElementById('root'));
+  registerServiceWorker();
+
+
+

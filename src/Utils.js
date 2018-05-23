@@ -3,6 +3,9 @@ import React from "react";
 import namor from "namor";
 import "./index.css";
 
+export const ENDPOINT = "http://localhost:5000/data"
+
+
 const range = len => {
   const arr = [];
   for (let i = 0; i < len; i++) {
