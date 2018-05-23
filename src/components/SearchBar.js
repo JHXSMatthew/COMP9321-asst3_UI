@@ -146,7 +146,7 @@ export default class SearchBar extends Component {
         <div className='row justify-content-md-center'>
           <div className='col-md-4'>
             <a  href={"/country/" + this.state.value }>  
-              <button class='btn-primary btn-lg btn-block' >Search</button>
+              <button className='btn-primary btn-lg btn-block' >Search</button>
            </a>
           </div>
         </div>

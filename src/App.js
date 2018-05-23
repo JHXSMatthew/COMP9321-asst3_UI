@@ -11,6 +11,8 @@ import {
   Link,
   Switch
 } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
+
 import {ENDPOINT} from './Utils'
 
 import {connect} from 'react-redux';
@@ -30,27 +32,36 @@ const mapStateToProps = (state) => ({
 class App extends Component {
   constructor(props){
     super(props)
+    
+  }
+
+  componentWillMount(){
     const { 
       actionFetchCountryList,
       actionFetchFail,
       actionUpdateCountryList 
-    } = props.actions;
-    actionFetchCountryList()
-    fetch(ENDPOINT + '/countries').then((response)=>{
-      response.json().then((data) => {
-        actionUpdateCountryList(data);
-      });
-    }).then((err)=>{
-      console.log(err)
-      actionFetchFail()
-    }).catch((err) =>{
-      console.log(err)
-      actionFetchFail()
-    })
+    } = this.props.actions;
+    const {countryList} = this.props.state;
+    if(!countryList){
+      actionFetchCountryList()
+      fetch(ENDPOINT + '/countries').then((response)=>{
+        response.json().then((data) => {
+          actionUpdateCountryList(data);
+        });
+      }).then((err)=>{
+        console.log(err)
+        actionFetchFail()
+      }).catch((err) =>{
+        console.log(err)
+        actionFetchFail()
+      })
+    }    
   }
+
   render() {
     const {fetching} = this.props.state
     return (
+      <BrowserRouter> 
       <div >
           <Header />
           <br/>
@@ -63,6 +74,8 @@ class App extends Component {
           }
 
       </div>
+      </BrowserRouter> 
+
     );
   }
 }
