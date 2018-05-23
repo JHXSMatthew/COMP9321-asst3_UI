@@ -9,11 +9,29 @@ import { actionUpdateCountryInfo } from '../reducers/actions';
 class CountryView extends Component{
   constructor(props){
     super(props)
+    this.state = {
+      ready: false
+    }
   }
 
   componentWillMount(){
+    if(!this.state.ready){
+      this.setState({ready: true})
+      this.props.onLoad("Australia")
+      console.log(this.porps)
+    }
     
-    
+  }
+
+  shouldComponentUpdate(nextProps, nextState){
+    console.log("n")
+    console.log(nextProps)
+    console.log("c")
+    console.log(this.props)
+    if(nextProps.currentCountry == this.props.currentCountry){
+      return false
+    }
+    return true;
 
   }
 
@@ -74,7 +92,7 @@ class CountryView extends Component{
           <div className="col">
             <Collapsed 
               uniqueName="countryRankView"
-              body = { () => <CountryInfoRankingChart data={rp}/>}
+              body = { () => <div/>}
               title = "Country Rankings"
               parent = "#accordion"
             />
