@@ -19,8 +19,15 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
 
+import * as Actions from './reducers/actions';
 
+const mapDispatchToProps = (dispatch) => ({
+	actions: bindActionCreators(Actions, dispatch)
+})
 
+const mapStateToProps = (state) => ({
+	state: state
+});
 
 class App extends Component {
   constructor(props){
@@ -29,7 +36,28 @@ class App extends Component {
   }
 
   componentWillMount(){
-    
+    console.log("on app mount!")
+    console.log(this.props)
+    const { 
+      actionFetchStart,
+      actionFetchFail,
+      actionUpdateCountryList 
+    } = this.props.actions;
+    const {countryList} = this.props.state;
+    if(!countryList){
+      actionFetchStart()
+      fetch(ENDPOINT + '/countries').then((response)=>{
+        response.json().then((data) => {
+          actionUpdateCountryList(data);
+        });
+      }).then((err)=>{
+        console.log(err)
+        actionFetchFail()
+      }).catch((err) =>{
+        console.log(err)
+        actionFetchFail()
+      })
+    }    
   }
 
   onCurrentCountrySelected(){
@@ -86,5 +114,8 @@ const LoadingView = ({ type, color }) => (
 const Prop = styled('h3')`
 f5 f4-ns mb0 blue`;
 
-export default App;
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+) (App);
 
