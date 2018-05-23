@@ -32,7 +32,7 @@ const mapStateToProps = (state) => ({
 class App extends Component {
   constructor(props){
     super(props)
-    this.loadCurrentCountry = this.loadCurrentCountry.bind(this)
+    this.onCurrentCountrySelected = this.onCurrentCountrySelected.bind(this)
   }
 
   componentWillMount(){
@@ -60,13 +60,13 @@ class App extends Component {
     }    
   }
 
-  loadCurrentCountry(countryName){
+  onCurrentCountrySelected(){
     const {
       actionFetchStart,actionFetchFail,actionUpdateCountryInfo
     } = this.props.actions
 
     actionFetchStart()
-      fetch(ENDPOINT + "/" + countryName).then((response)=>{
+      fetch(ENDPOINT + "/" + "Australia").then((response)=>{
         response.json().then((data) => {
           actionUpdateCountryInfo(data);
         });
@@ -89,8 +89,8 @@ class App extends Component {
           {fetching ? <LoadingView type="spin" color="#0000ff"/> :
           <Switch>
             <Route exact path="/country" render = {() => <RankingView />}/>
-            <Route path="/country/:name" render = {() => <CountryView onLoad={this.loadCurrentCountry} />}  />
-            <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList}/>}/>
+            <Route path="/country/:name" render = {() => <CountryView currentCountry={this.props.state.currentCountry} actions={this.props.actions}/>}  />
+            <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList} onSearch={this.onCurrentCountrySelected}/>}/>
           </Switch>
           }
 
