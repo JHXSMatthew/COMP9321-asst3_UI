@@ -3,7 +3,11 @@ import CountryRankTable from '../components/CountryRankTable';
 import SearchBar from '../components/SearchBar';
 import Logo from '../Vista-logo.png'
 
-import { makeData } from "../Utils";
+import { makeData,ENDPOINT } from "../Utils";
+
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import * as Actions from '../reducers/actions';
 
 
 import {Container, 
@@ -30,7 +34,16 @@ const flag = {
   showPageSizeOptions: false
 }
 
-export default class HomeView extends Component{
+
+const mapDispatchToProps = (dispatch) => ({
+	actions: bindActionCreators(Actions, dispatch)
+})
+
+const mapStateToProps = (state) => ({
+	state: state
+});
+
+class HomeView extends Component{
   constructor(props){
     super(props)
     this.state = {
@@ -39,8 +52,32 @@ export default class HomeView extends Component{
     this.onUpdate = this.onUpdate.bind(this);
   }
 
+  componentWillMount(){
+    const { 
+      actionFetchStart,
+      actionFetchFail,
+      actionUpdateCountryList 
+    } = this.props.actions;
+    const {countryList} = this.props.state;
+    if(!countryList){
+      actionFetchStart()
+      fetch(ENDPOINT + '/countries').then((response)=>{
+        response.json().then((data) => {
+          actionUpdateCountryList(data);
+        });
+      }).then((err)=>{
+        console.log(err)
+        actionFetchFail()
+      }).catch((err) =>{
+        console.log(err)
+        actionFetchFail()
+      })
+    }    
+  }
+
   onUpdate(value){
     this.setState({value})
+    
   }
 
   render(){
@@ -75,3 +112,8 @@ export default class HomeView extends Component{
     );
   }
 }
+
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+) (HomeView)
