@@ -67,19 +67,19 @@ class App extends Component {
     } = this.props.actions
     
     actionFetchStart()
-      fetch(ENDPOINT + "/" + value).then((response)=>{
-        console.log(response)
-        response.json().then((data) => {
-          console.log(data)
-          actionUpdateCountryInfo(data);
-        });
-      }).then((err)=>{
-        console.log(err)
-        actionFetchFail()
-      }).catch((err) =>{
-        console.log(err)
-        actionFetchFail()
-      })
+    fetch(ENDPOINT + "/" + value).then((response)=>{
+      console.log(response)
+      response.json().then((data) => {
+        console.log(data)
+        actionUpdateCountryInfo(data);
+      });
+    }).then((err)=>{
+      console.log(err)
+      actionFetchFail()
+    }).catch((err) =>{
+      console.log(err)
+      actionFetchFail()
+    })
   }
 
   render() {
