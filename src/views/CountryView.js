@@ -3,53 +3,54 @@ import { Chart } from 'react-google-charts';
 
 import { ENDPOINT } from '../Utils'
 import { actionUpdateCountryInfo } from '../reducers/actions';
-
+import LoadingView from '../components/LoadingView'
 
 
 class CountryView extends Component{
   constructor(props){
     super(props)
     console.log(props)
-    if(props.currentCountryInfo){
-      //bind and update
-    }else{
-      console.log('false')
 
-      props.onCurrentCountrySelected(props.countryName)
+    this.isReady = this.isReady.bind(this)
+  }
+
+  componentDidMount(){
+    if(!this.props.state || !this.props.state.currentCountryInfo){
+      this.props.getCountryInfo(this.props.countryName)
     }
   }
 
-  componentWillMount(){
-    
+  isReady(){
+    return this.props.state && this.props.state.currentCountryInfo && !this.props.state.fetching
   }
 
   render(){
-    const data = {
-      country: "China",
-      capital: "BeiJing",
-      agrland: "0.45",
-      rank_overall: "1",
-      lat: 39.9385466,
-      lng: 116.1172765,
-      eco: {
-        gni: "171",
-        gini: "0.5",
-        rank_gini: "1",
-        rank_gni: "1",
-      },
-      env: {
-        co2: "32",
-        ch4: "45",
-        rank_co2: "1",
-        rank_ch4: "1"
-      },
-      eng: {
-        renewable: "0.2",
-        fossie_fuel: "0.3",
-        rank_renewable: "1",
-        rank_fossie_fuel: "1"
-      }
-    }
+    // const data = {
+    //   country: "China",
+    //   capital: "BeiJing",
+    //   agrland: "0.45",
+    //   rank_overall: "1",
+    //   lat: 39.9385466,
+    //   lng: 116.1172765,
+    //   eco: {
+    //     gni: "171",
+    //     gini: "0.5",
+    //     rank_gini: "1",
+    //     rank_gni: "1",
+    //   },
+    //   env: {
+    //     co2: "32",
+    //     ch4: "45",
+    //     rank_co2: "1",
+    //     rank_ch4: "1"
+    //   },
+    //   eng: {
+    //     renewable: "0.2",
+    //     fossie_fuel: "0.3",
+    //     rank_renewable: "1",
+    //     rank_fossie_fuel: "1"
+    //   }
+    // }
 
     const rp = [
       ["gini", 1],
@@ -59,68 +60,131 @@ class CountryView extends Component{
       ["Renewable Energy",5],
       ["Fossie Fuel", 3]
     ]
-
+    const {state} = this.props
+    const {currentCountryInfo} = state
+    var name = 'Default'
+    if(currentCountryInfo){
+      name = currentCountryInfo.Name
+    }
     return (
-      <div className="container">
-        <div className="card ">
-          <div className="card-body">
-            <div className="container">
-              <div className="row">
-                <div className="col">
-                  <CountryInfo countryInfo={data} />
-                </div>
-                <div className="col">
-                  <img src={"https://maps.googleapis.com/maps/api/staticmap?center=" + data.capital + ","+ data.country + "&zoom=3&size=400x340&key=AIzaSyBfvL8_gNAlyKFQbj7tWfKkOJpZcveBUXk"}/>    
+      <LoadingView fetching={!this.isReady()} type="spin" color="#0000ff">
+        <div className="container">
+          <div className="card ">
+            <div className="card-body">
+              <div className="container">
+                <div className="row">
+                  <div className="col">
+                    <CountryInfo countryInfo={currentCountryInfo} />
+                  </div>
+                  <div className="col">
+                    <img src={"https://maps.googleapis.com/maps/api/staticmap?center=" + name + "&zoom=4&size=400x340&key=AIzaSyBfvL8_gNAlyKFQbj7tWfKkOJpZcveBUXk"}/>    
+                  </div>
                 </div>
               </div>
             </div>
+          </div>      
+          <div className="row" id="accordion">
+            <div className="col">
+              <Collapsed 
+                uniqueName="countryRankView"
+                body = { () => <CountryInfoRankingChart data={rp}/>}
+                title = "Country Rankings"
+                parent = "#accordion"
+              />
+              </div>
           </div>
-        </div>      
-        <div className="row" id="accordion">
-          <div className="col">
-            <Collapsed 
-              uniqueName="countryRankView"
-              body = { () => <CountryInfoRankingChart data={rp}/>}
-              title = "Country Rankings"
-              parent = "#accordion"
-            />
-            </div>
         </div>
-      </div>
+      </LoadingView>
     );
   }
 }
 
 class CountryInfo extends Component{
+
+  constructor(props){
+    super(props)
+    this.getLatest = this.getLatest.bind(this)
+    this.findYearToDisplay = this.findYearToDisplay.bind(this)
+  }
+
+  getLatest(list){
+    let year = -1
+    let value = 'N/G'
+    if(list){
+      for(let i = 0 ; i < list.length; i ++){
+        if(list[i].year > Number(year) && list[i].value != -1){
+          value = list[i].value
+          year = Number(list[i].year)
+        }
+      }
+    }
+    return {year,value}
+  }
+
+  //need one year that has all the data
+  findYearToDisplay(list){
+    if(!list || list.length == 0){
+      return -1
+    }
+    let first = list[0]
+    if(!first || first.length == 0){
+      return -1
+    }
+    let length = first.length
+    let year = -1
+    let idx = -1
+    for(let i = 0 ; i < length ; i ++){
+      let hasValue = false
+      for(let j = 0 ; j < list.length ; j ++){
+        if(list[j] && list[j][i] && list[j][i].value && list[j][i].value != -1){
+          hasValue = true
+          year = list[j][i].year
+        }else{
+          hasValue = false
+          break
+        }
+      }
+      if(hasValue){
+        idx = i
+        break;
+      }
+    }
+    return {year,idx}
+
+  }
+
   render(){
-    const {country, capital, agrland, rank_overall} = this.props.countryInfo;
-    const {gni, gini, rank_gni, rank_gini} = this.props.countryInfo.eco;
-    const {co2, ch4 , rank_co2, rank_ch4} = this.props.countryInfo.env
-    const {renewable, fossie_fuel, rank_renewable, rank_fossie_fuel} = this.props.countryInfo.eng
-     
+    const {Name, CO2, Agriculture_Percentage, GINI, GNI, Population,Renewable_Percentage,Fossil_Fuel_Percentage, CH4} = this.props.countryInfo;
+    // const {gni, gini, rank_gni, rank_gini} = this.props.countryInfo.eco;
+    // const {co2, ch4 , rank_co2, rank_ch4} = this.props.countryInfo.env
+    // const {renewable, fossie_fuel, rank_renewable, rank_fossie_fuel} = this.props.countryInfo.eng
+    const {year, idx} = this.findYearToDisplay([CO2, Agriculture_Percentage, GNI, Population,Renewable_Percentage,Fossil_Fuel_Percentage, CH4])
+    console.log('year to display:' + year + ' idx:' + idx)
     return (
        <div>
       {/* //   <div className="card-body"> */}
-          <h5 className="card-title">{country} Information</h5>
+          <h5 className="card-title">{Name} Information - {year}</h5>
           <CountryInfoAttribute key="1"
           mapping={[
-            {key:"capital",value: capital},
-            {key:"Agriculture Land", value: agrland},
-            {key:"Ranking", value:rank_overall}
+            {key:"Population", value: Population[idx]},
+            {key:"Agriculture Land", value: Agriculture_Percentage[idx]},
+            {key:"GNI", value: GNI[idx]},
+            {key: "GINI", value: this.getLatest(GINI)},
+            {key:"Ranking", value: {value:1}} //TODO: need the rank api.
           ]} 
           title="General" />
 
-          <CountryInfoAttribute key="2"
+           <CountryInfoAttribute key="2"
           mapping={[
-            {key:"CO2",value: co2},
-            {key:"CH4", value: ch4},
+            {key:"CO2",value: CO2[idx]},
+            {key:"CH4", value: CH4[idx]},
           ]} 
           title="Environmental Indicators" />
 
            <CountryInfoAttribute key="3"
           mapping={[
-            {key:"Renewable Energy",value: renewable},
-            {key:"Fossie Fuel", value: fossie_fuel},
+            {key:"Renewable Energy",value: Renewable_Percentage[idx]},
+            {key:"Fossie Fuel", value: Fossil_Fuel_Percentage[idx]},
           ]} 
           title="Enery Indicators" />
       {/* //   </div> */}
@@ -132,8 +196,9 @@ class CountryInfo extends Component{
 class CountryInfoAttribute extends Component{
   render(){
     const x = []
+    //element = {year,value}
     this.props.mapping.forEach(element => {
-      x.push( <li key={element.key}>{element.key}: {element.value}</li>)
+      x.push( <li key={element.key} data-toggle="tooltip" data-placement="right" title={"In " + element.value.year}>{element.key}: {element.value.value}</li>) //second value for the 'real' value
     });
 
     return (

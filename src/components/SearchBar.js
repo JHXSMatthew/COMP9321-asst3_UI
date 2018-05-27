@@ -146,7 +146,7 @@ export default class SearchBar extends Component {
         <div className='row justify-content-md-center'>
           <div className='col-md-4'>
             <Link to={"/country/" + this.state.value } onClick={()=> this.props.onClick(this.state.value)} >  
-              <button className='btn-primary btn-lg btn-block'  >Search</button>
+              <button className='btn-primary btn-lg btn-block' >Search</button>
            </Link>
           </div>
         </div>

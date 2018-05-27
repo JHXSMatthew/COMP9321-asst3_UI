@@ -90,14 +90,11 @@ class App extends Component {
       <div >
           <Header />
           <br/>
-          <LoadingView fetching={fetching} type="spin" color="#0000ff">
             <Switch>
               <Route exact path="/country" render = {() => <RankingView />}/>
-              <Route path="/country/:name" render = {(props) => <CountryView currentCountryInfo={currentCountryInfo} actions={this.props.actions} onCurrentCountrySelected={this.onCurrentCountrySelected} countryName={props.match.params.name}/>} />
+              <Route path="/country/:name" render = {(props) => <CountryView state={this.props.state} getCountryInfo={this.onCurrentCountrySelected} countryName={props.match.params.name}/>} />
               <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList} onSearch={this.onCurrentCountrySelected}/>}/>
-            </Switch>
-          </LoadingView>
-          
+            </Switch>          
 
       </div>
       </BrowserRouter> 
