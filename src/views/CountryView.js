@@ -28,8 +28,8 @@ class CountryView extends Component{
 
   indicator_set_to_graph(nameList,dataList, x_title="time", y_title="value", title="Collection"){
     const _default = (err="no data") => <div> {err} </div>
-    console.log({i:"namelist", v:nameList})
-    console.log({i:"dataList", v:dataList})
+    // console.log({i:"namelist", v:nameList})
+    // console.log({i:"dataList", v:dataList})
 
     if(!nameList || !nameList.length || !dataList || !dataList.length || dataList.length!= nameList.length){
       return _default()
@@ -41,32 +41,29 @@ class CountryView extends Component{
     for(let i = 0 ; i < nameList.length; i ++){
       schema.push(nameList[i])
     }
-    //compute the first data
     let curr = []
     let year = 0
-    let innerSize = 0
-    for(let i = 0; i < dataList.length ; i ++){
-      let year_value = dataList[i][0]
-      if(!year_value){
-        console.log('data err' + nameList[i])
-        console.log(dataList)
-        curr.push(0)
-      }
-      else if(year_value.value == -1){
-        curr.push(0)
-        console.log("data -1" + nameList[i])
-        year = year_value.year
-      }else{
-        curr.push(year_value.value)
-        year = year_value.year
-      }
-      innerSize = Math.max(dataList[i].length, innerSize)
-    }
-    console.log(innerSize)
-    curr.unshift(year)
-    data.push(curr)
+    let innerSize = dataList[0].length
+    // for(let i = 0; i < dataList.length ; i ++){
+    //   let year_value = dataList[i][0]
+    //   if(!year_value){
+    //     console.log('data err' + nameList[i])
+    //     console.log(dataList)
+    //     curr.push(0)
+    //   }
+    //   else if(year_value.value == -1){
+    //     curr.push(0)
+    //     console.log("data -1 " + nameList[i])
+    //     year = year_value.year
+    //   }else{
+    //     curr.push(year_value.value)
+    //     year = year_value.year
+    //   }
+    //   innerSize = Math.max(dataList[i].length, innerSize)
+    // }
+    // console.log(innerSize)
     //compute all other data, will use previous one if no data avaliable for the year
-    for(let i = 1 ; i < innerSize ; i ++){
+    for(let i= 0 ; i < innerSize ; i ++){
       curr = []
       year = 0
       for(let j = 0 ; j < dataList.length; j ++){
@@ -74,20 +71,20 @@ class CountryView extends Component{
         if(!year_value){
           console.log('data err' + nameList[i])
           console.log(dataList)
-          curr.push(data[i-1][j])
+          curr.push(0)
         }else if(year_value.value == -1){
-          curr.push(data[i-1][j])
-          year = year_value.year
+          curr.push(0)
+          year = String(year_value.year)
         }else{
           curr.push(year_value.value)
-          year = year_value.year
+          year = String(year_value.year)
         }
       }
       curr.unshift(year)
       data.push(curr)
     }
-    console.log(schema)
-    console.log(data)
+    // console.log(schema)
+    // console.log(data)
     //if only one data in the name list, then
     if(title == "Collection" && nameList.length == 1){
       title = nameList[0]
@@ -96,21 +93,33 @@ class CountryView extends Component{
     //hotfix the first one is fking -1, you are trolling me
     let first = data[0]
     for(let i = 1 ; i < first.length ; i ++){
-      if(first[i] == 0){
+      if(first[i] === 0){
         //there you go 
         //find first non-0
         for(let j = 1 ; j < data.length; j++){
-          if(data[j][i] != 0){
-            first[i] = data[j][i]
+          if(data[j][i]){
+            data[0][i] = data[j][i]
             break;
           }
         }
       }
     }
+
+    //then fix all the shit data
+    first = data[0]
+    for(let i = 0 ; i < first.length ; i ++){
+      for(let j = 1 ; j < data.length ; j ++){
+        if(!data[j][i]){
+          data[j][i] = data[j-1][i]
+        }
+      }
+    }
     
     data = data.reverse()
-
+    let id = title
+    title = title + " Trend from " + data[0][0]  + " to " + data[data.length - 1][0];
     return {
+      id: id,
       title: title ,
       graph:<LineCharWrapper title={title} x_title={x_title} y_title={y_title} schema={schema} data={data}/>
     }
@@ -176,7 +185,7 @@ class CountryView extends Component{
     }
 
     graphArray = graphArray.map((e)=> {
-      return <Collapsed key={e.title} uniqueName={e.title} body={() => e.graph} title = {e.title} parent = "#accordion" active={true} />
+      return <Collapsed key={e.id} uniqueName={e.id} body={() => e.graph} title = {e.title} parent = "#accordion" active={true} />
     })
     console.log({t:"graph array", v: graphArray})
 
@@ -361,6 +370,7 @@ class Collapsed extends Component{
 export class LineCharWrapper extends Component{
   render(){
     const {schema, data, title, y_title, x_title} = this.props
+    console.log(this.props)
     return(
         <Chart
           chartType="LineChart"
@@ -368,13 +378,13 @@ export class LineCharWrapper extends Component{
           options=
           {
             {
-              title: {title},
+              title: title,
               colors: ['#b0120a', '#ffab91'],
               hAxis: {
-                title: {x_title}
+                title: x_title
               },
               vAxis: {
-                title: {y_title}
+                title: y_title
               }
             }
           }

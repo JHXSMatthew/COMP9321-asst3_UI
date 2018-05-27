@@ -37,3 +37,11 @@ export const actionFetchCountryInfo = (countryName) =>{
     data: countryName
   }
 }
+
+export const TYPE_UPDATE_ALL = "TYPE_UPDATE_ALL"
+export const actionUpdateAll = (data) =>{
+  return {
+    type: TYPE_UPDATE_ALL,
+    data: data
+  }
+}

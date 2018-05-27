@@ -91,7 +91,7 @@ class App extends Component {
           <Header />
           <br/>
             <Switch>
-              <Route exact path="/country" render = {() => <RankingView />}/>
+              <Route exact path="/country" render = {() => <RankingView state={this.props.state} actions={this.props.actions}/>}/>
               <Route path="/country/:name" render = {(props) => <CountryView state={this.props.state} getCountryInfo={this.onCurrentCountrySelected} countryName={props.match.params.name}/>} />
               <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList} onSearch={this.onCurrentCountrySelected}/>}/>
             </Switch>          
