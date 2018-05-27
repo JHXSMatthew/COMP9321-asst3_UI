@@ -12,6 +12,7 @@ class CountryView extends Component{
     console.log(props)
 
     this.isReady = this.isReady.bind(this)
+    this.indicator_set_to_graph = this.indicator_set_to_graph.bind(this)
   }
 
   componentDidMount(){
@@ -22,6 +23,97 @@ class CountryView extends Component{
 
   isReady(){
     return this.props.state && this.props.state.currentCountryInfo && !this.props.state.fetching
+  }
+
+
+  indicator_set_to_graph(nameList,dataList, x_title="time", y_title="value", title="Collection"){
+    const _default = (err="no data") => <div> {err} </div>
+    console.log({i:"namelist", v:nameList})
+    console.log({i:"dataList", v:dataList})
+
+    if(!nameList || !nameList.length || !dataList || !dataList.length || dataList.length!= nameList.length){
+      return _default()
+    }
+    
+    let schema = ["X"]
+    let data = []
+    //compute schema
+    for(let i = 0 ; i < nameList.length; i ++){
+      schema.push(nameList[i])
+    }
+    //compute the first data
+    let curr = []
+    let year = 0
+    let innerSize = 0
+    for(let i = 0; i < dataList.length ; i ++){
+      let year_value = dataList[i][0]
+      if(!year_value){
+        console.log('data err' + nameList[i])
+        console.log(dataList)
+        curr.push(0)
+      }
+      else if(year_value.value == -1){
+        curr.push(0)
+        console.log("data -1" + nameList[i])
+        year = year_value.year
+      }else{
+        curr.push(year_value.value)
+        year = year_value.year
+      }
+      innerSize = Math.max(dataList[i].length, innerSize)
+    }
+    console.log(innerSize)
+    curr.unshift(year)
+    data.push(curr)
+    //compute all other data, will use previous one if no data avaliable for the year
+    for(let i = 1 ; i < innerSize ; i ++){
+      curr = []
+      year = 0
+      for(let j = 0 ; j < dataList.length; j ++){
+        let year_value = dataList[j][i]
+        if(!year_value){
+          console.log('data err' + nameList[i])
+          console.log(dataList)
+          curr.push(data[i-1][j])
+        }else if(year_value.value == -1){
+          curr.push(data[i-1][j])
+          year = year_value.year
+        }else{
+          curr.push(year_value.value)
+          year = year_value.year
+        }
+      }
+      curr.unshift(year)
+      data.push(curr)
+    }
+    console.log(schema)
+    console.log(data)
+    //if only one data in the name list, then
+    if(title == "Collection" && nameList.length == 1){
+      title = nameList[0]
+    }
+
+    //hotfix the first one is fking -1, you are trolling me
+    let first = data[0]
+    for(let i = 1 ; i < first.length ; i ++){
+      if(first[i] == 0){
+        //there you go 
+        //find first non-0
+        for(let j = 1 ; j < data.length; j++){
+          if(data[j][i] != 0){
+            first[i] = data[j][i]
+            break;
+          }
+        }
+      }
+    }
+    
+    data = data.reverse()
+
+    return {
+      title: title ,
+      graph:<LineCharWrapper title={title} x_title={x_title} y_title={y_title} schema={schema} data={data}/>
+    }
   }
 
   render(){
@@ -60,12 +152,35 @@ class CountryView extends Component{
       ["Renewable Energy",5],
       ["Fossie Fuel", 3]
     ]
+    const foo = 
+      ['X',"first",'second']
+    
+    const bar = [
+      [0,1,2],
+      [2,3,4]
+    ]
     const {state} = this.props
     const {currentCountryInfo} = state
     var name = 'Default'
+    var graphArray = []
     if(currentCountryInfo){
       name = currentCountryInfo.Name
+      //to graph
+      for(let p in currentCountryInfo){
+        let obj = currentCountryInfo[p]
+        if(Array.isArray(obj)){
+          graphArray.push(this.indicator_set_to_graph([p],[obj], "year", "value", p))
+        }
+
+      }
     }
+
+    graphArray = graphArray.map((e)=> {
+      return <Collapsed key={e.title} uniqueName={e.title} body={() => e.graph} title = {e.title} parent = "#accordion" active={true} />
+    })
+    console.log({t:"graph array", v: graphArray})
+
+
     return (
       <LoadingView fetching={!this.isReady()} type="spin" color="#0000ff">
         <div className="container">
@@ -90,7 +205,9 @@ class CountryView extends Component{
                 body = { () => <CountryInfoRankingChart data={rp}/>}
                 title = "Country Rankings"
                 parent = "#accordion"
+                active = {true}
               />
+              {graphArray}
               </div>
           </div>
         </div>
@@ -215,7 +332,7 @@ class CountryInfoAttribute extends Component{
 class Collapsed extends Component{
 
   render(){
-    const {uniqueName, body, title, parent} = this.props;
+    const {uniqueName, body, title, parent, active} = this.props;
     const heading = uniqueName+"head";
     const collapses = uniqueName+"collapse";
 
@@ -228,7 +345,7 @@ class Collapsed extends Component{
             </button>
           </h5>
         </div>
-        <div id={collapses} className="collapse show" aria-labelledby={heading} data-parent={parent}>
+        <div id={collapses} className={"collapse " + (active?"show":"")} aria-labelledby={heading} data-parent={parent}>
           <div className="card-body">
             <div className="row col">
               {body()}
@@ -240,6 +357,35 @@ class Collapsed extends Component{
   }
 }
 
+
+export class LineCharWrapper extends Component{
+  render(){
+    const {schema, data, title, y_title, x_title} = this.props
+    return(
+        <Chart
+          chartType="LineChart"
+          data={[schema, ...data]}
+          options=
+          {
+            {
+              title: {title},
+              colors: ['#b0120a', '#ffab91'],
+              hAxis: {
+                title: {x_title}
+              },
+              vAxis: {
+                title: {y_title}
+              }
+            }
+          }
+          graph_id={title}
+          width= "100%"
+          height="600px"
+          legend_toggle
+        />
+    );
+  }
+}
 
 class CountryInfoRankingChart extends Component{
   render(){
