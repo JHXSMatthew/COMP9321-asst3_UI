@@ -62,7 +62,7 @@ export default class HomeView extends Component{
         </div>
         <br/>
         <div className="row" >
-          <SearchBar countryList={this.props.countryList} onUpdate={this.onUpdate}/>
+          <SearchBar countryList={this.props.countryList} onUpdate={this.onUpdate} onClick={this.props.onSearch}/>
         </div>
         <br/>
         <div className="row">

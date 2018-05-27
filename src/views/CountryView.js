@@ -9,12 +9,18 @@ import { actionUpdateCountryInfo } from '../reducers/actions';
 class CountryView extends Component{
   constructor(props){
     super(props)
+    console.log(props)
+    if(props.currentCountryInfo){
+      //bind and update
+    }else{
+      console.log('false')
+
+      props.onCurrentCountrySelected(props.countryName)
+    }
   }
 
   componentWillMount(){
     
-    
-
   }
 
   render(){

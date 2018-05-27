@@ -48,6 +48,7 @@ class App extends Component {
       actionFetchStart()
       fetch(ENDPOINT + '/countries').then((response)=>{
         response.json().then((data) => {
+          console.log(data)
           actionUpdateCountryList(data);
         });
       }).then((err)=>{
@@ -60,14 +61,16 @@ class App extends Component {
     }    
   }
 
-  onCurrentCountrySelected(){
+  onCurrentCountrySelected(value){
     const {
       actionFetchStart,actionFetchFail,actionUpdateCountryInfo
     } = this.props.actions
-
+    
     actionFetchStart()
-      fetch(ENDPOINT + "/" + "Australia").then((response)=>{
+      fetch(ENDPOINT + "/" + value).then((response)=>{
+        console.log(response)
         response.json().then((data) => {
+          console.log(data)
           actionUpdateCountryInfo(data);
         });
       }).then((err)=>{
@@ -81,18 +84,20 @@ class App extends Component {
 
   render() {
     const {fetching} = this.props.state
+    const {currentCountryInfo} = this.props.state
     return (
       <BrowserRouter> 
       <div >
           <Header />
           <br/>
-          {fetching ? <LoadingView type="spin" color="#0000ff"/> :
-          <Switch>
-            <Route exact path="/country" render = {() => <RankingView />}/>
-            <Route path="/country/:name" render = {() => <CountryView currentCountry={this.props.state.currentCountry} actions={this.props.actions}/>}  />
-            <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList} onSearch={this.onCurrentCountrySelected}/>}/>
-          </Switch>
-          }
+          <LoadingView fetching={fetching} type="spin" color="#0000ff">
+            <Switch>
+              <Route exact path="/country" render = {() => <RankingView />}/>
+              <Route path="/country/:name" render = {(props) => <CountryView currentCountryInfo={currentCountryInfo} actions={this.props.actions} onCurrentCountrySelected={this.onCurrentCountrySelected} countryName={props.match.params.name}/>} />
+              <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList} onSearch={this.onCurrentCountrySelected}/>}/>
+            </Switch>
+          </LoadingView>
+          
 
       </div>
       </BrowserRouter> 
@@ -101,16 +106,30 @@ class App extends Component {
   }
 }
 
-const LoadingView = ({ type, color }) => (
-  <div className="container">
-    <div className="row justify-content-md-center"> 
-      <ReactLoading type={type} color={color} height={667} width={375} />
-    </div>
-    <div className="row justify-content-md-center">
-       <Prop>Loading...</Prop>
-    </div>
-  </div>
-);
+//wrapper
+class LoadingView extends Component{
+  constructor(props){
+    super(props)
+    console.log(props)
+  }
+  render(){
+    const {fetching} = this.props
+
+    return(
+      fetching ? 
+      <div className="container">
+        <div className="row justify-content-md-center"> 
+          <ReactLoading type={this.props.type} color={this.props.color} height={667} width={375} />
+        </div>
+        <div className="row justify-content-md-center">
+           <Prop>Loading...</Prop>
+        </div>
+      </div>
+      :this.props.children
+    );
+  }
+}
+
 const Prop = styled('h3')`
 f5 f4-ns mb0 blue`;
 

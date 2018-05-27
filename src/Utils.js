@@ -3,7 +3,7 @@ import React from "react";
 import namor from "namor";
 import "./index.css";
 
-export const ENDPOINT = "http://localhost:5000/data"
+export const ENDPOINT = "http://localhost:9998/api"
 
 
 const range = len => {
