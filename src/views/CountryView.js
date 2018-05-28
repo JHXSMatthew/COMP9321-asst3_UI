@@ -23,7 +23,7 @@ class CountryView extends Component{
   }
 
   isReady(){
-    return this.props.state && this.props.state.currentCountryInfo && !this.props.state.fetching && this.props.state.indicatorList
+    return this.props.state && this.props.state.currentCountryInfo && !this.props.state.fetching && this.props.state.indicatorList && this.props.state.ranking
   }
 
 
@@ -137,14 +137,17 @@ class CountryView extends Component{
     //   }
     // }
 
-    const rp = [
-      ["gini", 1],
-      ["gni", 2],
-      ["co2",3],
-      ["ch4",4],
-      ["Renewable Energy",5],
-      ["Fossie Fuel", 3]
-    ]
+    // const rp = [
+    //   ["gini", 1],
+    //   ["gni", 2],
+    //   ["co2",3],
+    //   ["ch4",4],
+    //   ["Renewable Energy",5],
+    //   ["Fossie Fuel", 3]
+    // ]
+    
+ 
+    
     const foo = 
       ['X',"first",'second']
     
@@ -168,9 +171,26 @@ class CountryView extends Component{
         indicatorObj[indicatorList[i].Name] = indicatorList[i]
       }
     }
-    
+    let rp = []
     if(currentCountryInfo){
       name = currentCountryInfo.Name
+
+      //ranking graph
+      if(this.props.state && this.props.state.ranking){
+        for(let i in this.props.state.ranking[name]){
+          let magic = 200
+          if(state && state.countryList && state.countryList.result){
+            magic= state.countryList.result.length
+          }
+          let val = this.props.state.ranking[name][i]/magic
+          if(i == 'Renewable_Percentage'){
+            val = 1-val
+          }
+          rp.push(
+            [i, val]
+          )
+        }
+      }
       //to graph
       for(let p in currentCountryInfo){
         let obj = currentCountryInfo[p]
