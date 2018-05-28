@@ -20,7 +20,7 @@ const columns = [
       },
       {
         Header: "Rank",
-        accessor: "rank"
+        accessor: "ranking"
       }
     ]
   }
@@ -45,13 +45,13 @@ export default class HomeView extends Component{
 
   render(){
     const data = []
-    if(this.props.countryList && this.props.countryList.result){
-      this.props.countryList.result.forEach(element => {
+    if(this.props.overallRanking){
+      for(let i in this.props.overallRanking){
         data.push({
-          country: element.Country,
-          rank: element.id
+          country: i,
+          ranking: this.props.overallRanking[i]
         })
-      });
+      }
     }
     return (
       <div className="container">

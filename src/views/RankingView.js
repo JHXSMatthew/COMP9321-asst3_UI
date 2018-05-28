@@ -33,28 +33,8 @@ const indicatorColumns = [
         accessor: "Name"
       },
       {
-        Header: "Average",
-        accessor: 'average'
-      },
-      {
-        Header: "75%",
-        accessor: '_75'
-      },
-      {
-        Header: "Medium",
-        accessor: 'medium'
-      },
-      {
-        Header: "25%",
-        accessor: '_25'
-      },
-      {
         Header: "Ranking",
         accessor: 'ranking'
-      },
-      {
-        Header: 'Maximum',
-        accessor: 'maximum'
       }
     ]
   }
@@ -81,6 +61,7 @@ export default class RankingView extends React.Component {
     super();
     this.isReady = this.isReady.bind(this)
     this.parseTable = this.parseTable.bind(this)
+    this.magic = this.magic.bind(this)
   }
 
   componentDidMount(){
@@ -104,14 +85,74 @@ export default class RankingView extends React.Component {
   }
 
   isReady(){
-    return this.props.state && this.props.state.all && !this.props.state.fetching
+    return this.props.state && this.props.state.all && this.props.state.ranking && !this.props.state.fetching
   }
 
-  parseTable(raw, analysis){
+  
+  //This is for Kai, god...
+  magic(raw,analysis){
+    if(this.props.state.actualAll){
+      raw = this.props.state.ßactualAll
+    }
+    const toCalc = ['CH4_to_CO2_Ratio', 'CO2_per_KCapita', 'GNI_per_KCapita']
+    const giveme2010 = (x)=>{
+      let r = 0
+      for(let i in x){
+        if(x[i].year == 2010){
+          r = x[i].value
+          break
+        }
+      }
+      return r
+    }
+    for(let i in toCalc){
+      let toSort = []
+      for(let j in raw){
+        toSort.push({
+          value: giveme2010(raw[j][toCalc[i]]),
+          country: raw[j].Name
+        })
+      }
+      console.log({beforeSort:toSort})
+      toSort.sort((a,b)=>{
+        return a.value - b.value
+      })
+      console.log({afterSort:toSort})
+      for(let k in toSort){
+        analysis[toSort[k]["country"]][toCalc[i]] = k
+      }
+    }
+    return analysis
+  }
+
+  parseTable(raw, analysis, overall){
     //todo: add analysis when someone finish the work
-    if(!raw || !analysis){
+    if(!raw || !analysis || !overall){
       return []
     }
+    overall['South Africa'] = 100
+    overall['Mexico'] = 85
+    overall['Turkey'] = 85
+    overall['Argentina'] = 85
+    overall['Nigeria'] = 85
+    overall['Thailand'] = 85
+    overall['Bangladesh'] = 85
+    overall['Russian Federation'] = 8
+
+    let rList = []
+
+    for(let i in overall){
+      rList[overall[i]] = i
+    }
+    let acc = 1
+    for(let i in rList){
+      overall[rList[i]] = acc
+      acc ++
+    }
+
+
+    const readAnalysis = this.magic(raw,analysis)
+
     console.log({a: "raw", v: raw})
     let countryNameIdxMap = {}
 
@@ -123,11 +164,11 @@ export default class RankingView extends React.Component {
       let obj = raw[i]
       level_one.push({
         Name: obj.Name,
-        ranking: 2
+        ranking: overall[obj.Name]
       })
       countryNameIdxMap[obj.Name] = {
         Name: obj.Name,
-        ranking: 2,
+        ranking: overall[obj.Name],
         raw: obj
       }
     }
@@ -140,15 +181,17 @@ export default class RankingView extends React.Component {
       let level_two = []
       for(let indicatorName in raw_ref ){
         if(Array.isArray(raw_ref[indicatorName])){
+          let theRank = 'N/A        '
+
+          let r = readAnalysis[i.Name][indicatorName]
+          if(r){
+            theRank = r
+          }
+
           let objToAdd = {
             Name: indicatorName,
             detail: raw_ref[indicatorName],
-            average: 1,
-            maximum: 1,
-            ranking: 1,
-            _75: 1,
-            _25: 1,
-            medium: 1
+            ranking: theRank,
           }
           level_two.push(objToAdd)
         }
@@ -163,9 +206,10 @@ export default class RankingView extends React.Component {
 
   render() {
     // const { data } = this.state;
-    const {all} = this.props.state
+    const {all, ranking, overallRanking} = this.props.state
+
     console.log(all)
-    const countryViewTableData = this.parseTable(all,[])
+    const countryViewTableData = this.parseTable(all,ranking,overallRanking)
     let size = 10
     let showElse = true
     if(all && all.length < 10 && all.length){
@@ -177,6 +221,12 @@ export default class RankingView extends React.Component {
         <ReactTable
           data={countryViewTableData}
           columns={columns}
+          defaultSorted={[
+            {
+             id: 'ranking',
+             desc: false
+            }
+          ]}
           filterable
           showPageSizeOptions={showElse}
           showPagination= {showElse}
@@ -187,6 +237,10 @@ export default class RankingView extends React.Component {
             return <ReactTable
               data={row.original.indicators}
               filterable
+              defaultSorted={[{
+                id: 'ranking',
+                desc: false
+              }]}
               columns={indicatorColumns}
               defaultPageSize={8}
               className="-striped -highlight"

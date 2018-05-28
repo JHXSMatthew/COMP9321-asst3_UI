@@ -17,6 +17,10 @@ export default class CountryRankTable extends React.Component {
           data={data}
           columns={columns}
           defaultPageSize={10}
+          defaultSorted={[{
+            id: 'ranking',
+            desc: false
+          }]}
           className="-striped -highlight"
           showPageSizeOptions={false}
           showPagination= {false}

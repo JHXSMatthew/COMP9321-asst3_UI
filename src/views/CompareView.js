@@ -214,8 +214,13 @@ export default class CompareView extends Component{
       
       let indicatorData = []
       for(let j in countries){
+        if(!countries[j] 
+        || !countries[j][compareIndicator[i]]){
+          continue
+        }
         indicatorData.push(countries[j][compareIndicator[i]])
       }
+      
       let graphObj = this.indicator_set_to_graph(name,indicatorData, "year", safeGet(indicatorObj[compareIndicator[i]], "Unit"), compareIndicator[i])
       console.log({gbh:graphObj})
       graphObj = Object.assign({}, graphObj, {
@@ -277,7 +282,10 @@ export default class CompareView extends Component{
               </h5>
             <div className="card">
               <RankingView state={{
-                all: this.filterCountries(all)
+                all: this.filterCountries(all),
+                actualAll: all,
+                ranking: this.props.state.ranking,
+                overallRanking: this.props.state.overallRanking
               }}/>
             </div>
             <br/>

@@ -4,7 +4,7 @@ import namor from "namor";
 import "./index.css";
 
 export const ENDPOINT = "http://localhost:9998/api"
-
+export const ANALYSIS = "http://localhost:9998/analysis"
 
 const range = len => {
   const arr = [];

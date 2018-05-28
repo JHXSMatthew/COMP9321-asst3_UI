@@ -63,6 +63,25 @@ export const actionUpdateSummary = (data) =>{
 }
 
 
+export const TYPE_UPDATE_RANKING = "TYPE_UPDATE_RANKING"
+export const actionUpdateRanking = (data) =>{
+  return {
+    type: TYPE_UPDATE_RANKING,
+    data: data
+  }
+}
+
+export const TYPE_UPDATE_OVERALL_RANKING = "TYPE_UPDATE_OVERALL_RANKING"
+export const actionUpdateOverAllRanking = (data) =>{
+  return {
+    type: TYPE_UPDATE_OVERALL_RANKING,
+    data: data
+  }
+}
+
+
+
+
 
 //for compare view state
 export const TYPE_SET_COMPARE_COUNTRY = "TYPE_SET_COMPARE_COUNTRY"

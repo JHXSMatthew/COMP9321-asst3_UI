@@ -45,7 +45,7 @@ class CountryView extends Component{
     let curr = []
     let year = 0
     let innerSize = dataList[0].length
-    
+
     //compute all other data, will use previous one if no data avaliable for the year
     for(let i= 0 ; i < innerSize ; i ++){
       curr = []
@@ -160,7 +160,7 @@ class CountryView extends Component{
     //get graph and indicator
     
     let average = {}
-
+    
 
     let indicatorObj = {}
     if(indicatorList){
