@@ -173,13 +173,35 @@ class CountryView extends Component{
     const {currentCountryInfo, indicatorList} = state
     var name = 'Default'
     var graphArray = []
+
+    let indicatorObj = {}
+    if(indicatorList){
+      for(let i in indicatorList){
+        indicatorObj[indicatorList[i].Name] = indicatorList[i]
+      }
+    }
+    
     if(currentCountryInfo){
       name = currentCountryInfo.Name
       //to graph
       for(let p in currentCountryInfo){
         let obj = currentCountryInfo[p]
         if(Array.isArray(obj)){
-          graphArray.push(this.indicator_set_to_graph([p],[obj], "year", "value", p))
+          if(obj.length>0)
+          {
+            let graphObj = this.indicator_set_to_graph([p],[obj], "year",safeGet(indicatorObj[p], "Unit"), p)
+            graphObj.graph = 
+            <div>
+               {graphObj.graph} 
+               <details>
+                  <summary>What does this mean?</summary>
+                  <p>
+                    {safeGet(indicatorObj[p], "Details")}
+                  </p>
+                </details>
+            </div>
+            graphArray.push(graphObj)
+          }
         }
 
       }
@@ -305,10 +327,10 @@ class CountryInfo extends Component{
           <h5 className="card-title">{Name} Information - {year}</h5>
           <CountryInfoAttribute key="1"
           mapping={[
-            {key:"Population", value: Population[idx], unit: safeGet(indicatorList["Population"], "Unit")},
-            {key:"Agriculture Land", value: Agriculture_Percentage[idx],  unit: safeGet(indicatorList["Agricultural Land"], "Unit")},
-            {key:"GNI", value: GNI[idx],  unit: safeGet(indicatorList["GNI"], "Unit")},
-            {key: "GINI", value: this.getLatest(GINI),  unit: safeGet(indicatorList["GINI"], "Unit")},
+            {key:"Population", value: Population[idx], unit: safeGet(indicatorList["Population"], "Unit"), detail: safeGet(indicatorList["Population"], "Details")},
+            {key:"Agriculture Land", value: Agriculture_Percentage[idx],  unit: safeGet(indicatorList["Agriculture_Percentage"], "Unit"), detail: safeGet(indicatorList["Agriculture_Percentage"], "Details")},
+            {key:"GNI", value: GNI[idx],  unit: safeGet(indicatorList["GNI"], "Unit"), detail: safeGet(indicatorList["GNI"], "Details")},
+            {key: "GINI", value: this.getLatest(GINI),  unit: safeGet(indicatorList["GINI"], "Unit"), detail: safeGet(indicatorList["GINI"], "Details")},
             {key:"Ranking", value: {value:1}, notFormat: true} //TODO: need the rank api.
           ]} 
           title="General" 
@@ -316,21 +338,21 @@ class CountryInfo extends Component{
 
            <CountryInfoAttribute key="2"
           mapping={[
-            {key:"CO2",value: CO2[idx], unit: safeGet(indicatorList["CO2"], "Unit")},
-            {key:"CH4", value: CH4[idx], unit: safeGet(indicatorList["CH4"], "Unit")},
+            {key:"CO2",value: CO2[idx], unit: safeGet(indicatorList["CO2"], "Unit"), detail: safeGet(indicatorList["CO2"], "Details")},
+            {key:"CH4", value: CH4[idx], unit: safeGet(indicatorList["CH4"], "Unit"), detail: safeGet(indicatorList["CH4"], "Details")},
           ]} 
           title="Environmental Indicators" />
 
            <CountryInfoAttribute key="3"
           mapping={[
-            {key:"Renewable Energy Consumption",value: Renewable_Percentage[idx], unit: safeGet(indicatorList["Renewable Energy Consumption"], "Unit")},
-            {key:"Fossil Fuel Energy Consumption", value: Fossil_Fuel_Percentage[idx], unit: safeGet(indicatorList["Fossil Fuel Energy Consumption"], "Unit")},
+            {key:"Renewable Energy Consumption",value: Renewable_Percentage[idx], unit: safeGet(indicatorList["Renewable_Percentage"], "Unit"), detail: safeGet(indicatorList["Renewable_Percentage"], "Details")},
+            {key:"Fossil Fuel Energy Consumption", value: Fossil_Fuel_Percentage[idx], unit: safeGet(indicatorList["Fossil_Fuel_Percentage"], "Unit"), detail: safeGet(indicatorList["Fossil_Fuel_Percentage"], "Details")},
           ]} 
           title="Enery Indicators" />
       {/* //   </div> */}
        </div>
     );
-  }
+  }///
 }
 
 class CountryInfoAttribute extends Component{
@@ -338,8 +360,10 @@ class CountryInfoAttribute extends Component{
     const x = []
     //element = {year,value}
     this.props.mapping.forEach(element => {              
-      x.push( <li key={element.key} data-toggle="tooltip" data-placement="right" title={element.detail}>
-        {element.key}: <span style={{fontWeight: 900}}>{!element.notFormat?(element.value.value).toFixed(2):element.value.value}</span> <span style={{opacity: 0.5}}>{element.unit} </span>
+      x.push( <li key={element.key}>
+        <span data-toggle="tooltip" data-placement="right" title={element.detail}>
+          {element.key}: <span style={{fontWeight: 900}}>{!element.notFormat?(element.value.value).toFixed(2):element.value.value}</span> <span style={{opacity: 0.5}}>{element.unit} </span>
+        </span>
        
       </li>) //second value for the 'real' value
     });
@@ -387,7 +411,7 @@ export class Collapsed extends Component{
         </div>
         <div id={collapses} className={"collapse " + (this.state.active?"show":"")} aria-labelledby={heading} data-parent={parent}>
           <div className="card-body">
-            <div className="row col">
+            <div>
               {this.state.active?body():<div>loading</div>}
             </div>
           </div>
