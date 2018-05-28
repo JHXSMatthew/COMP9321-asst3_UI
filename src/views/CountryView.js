@@ -338,7 +338,7 @@ class CountryInfoAttribute extends Component{
   }
 }
 
-class Collapsed extends Component{
+export class Collapsed extends Component{
 
   render(){
     const {uniqueName, body, title, parent, active} = this.props;

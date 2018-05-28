@@ -6,6 +6,14 @@ export const actionUpdateCountryList = (data) => {
     type: TYPE_UPDATE_COUNTRY_LIST,
     data: data
   }
+}
+
+export const TYPE_UPDATE_INDICATOR_LIST = "TYPE_UPDATE_INDICATOR_LIST"
+export const actionUpdateIndicatorList = (data) => {
+  return {
+    type: TYPE_UPDATE_INDICATOR_LIST,
+    data: data
+  }
 } 
 
 export const TYPE_FETCH_COUNTRY_LIST = "TYPE_FETCH_COUNTRY_LIST"
@@ -43,5 +51,39 @@ export const actionUpdateAll = (data) =>{
   return {
     type: TYPE_UPDATE_ALL,
     data: data
+  }
+}
+
+
+//for compare view state
+export const TYPE_SET_COMPARE_COUNTRY = "TYPE_SET_COMPARE_COUNTRY"
+export const actionSetCompareCountry = (list) =>{
+  return {
+    type: TYPE_SET_COMPARE_COUNTRY,
+    data: list
+  }
+}
+export const TYPE_SET_COMPARE_INDICATOR = "TYPE_SET_COMPARE_INDICATOR"
+export const actionSetCompareIndicator = (list) =>{
+  return {
+    type: TYPE_SET_COMPARE_INDICATOR,
+    data: list
+  }
+}
+
+export const TYPE_SET_SHOW_GRAPH = "TYPE_SET_SHOW_GRAPH"
+export const actionShowGraph = (yesorno) =>{
+  return {
+    type: TYPE_SET_SHOW_GRAPH,
+    data: yesorno
+  }
+}
+
+
+export const TYPE_UPDATE_COUNTRY_STORE = "TYPE_UPDATE_COUNTRY_STORE"
+export const actionUpdateCountryStore = (countryInfo) =>{
+  return {
+    type: TYPE_UPDATE_COUNTRY_STORE,
+    data: countryInfo
   }
 }

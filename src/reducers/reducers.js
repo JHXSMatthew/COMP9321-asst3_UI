@@ -1,10 +1,15 @@
 import {
   TYPE_UPDATE_COUNTRY_LIST,
+  TYPE_UPDATE_INDICATOR_LIST,
   TYPE_FETCH_COUNTRY_LIST,
   TYPE_FETCH_FAIL,
   TYPE_UPDATE_COUNTRY_INFO,
   TYPE_FETCH_ALL,
   TYPE_UPDATE_ALL,
+  TYPE_SET_COMPARE_COUNTRY,
+  TYPE_SET_COMPARE_INDICATOR,
+  TYPE_UPDATE_COUNTRY_STORE,
+  TYPE_SET_SHOW_GRAPH,
   actionUpdateCountryList,
   
 } from './actions'
@@ -16,6 +21,11 @@ export const reducer = (state=[], action) => {
     case TYPE_UPDATE_COUNTRY_LIST:
       return Object.assign({}, state, {
         countryList: action.data,
+        fetching: false
+      });
+    case TYPE_UPDATE_INDICATOR_LIST:
+      return Object.assign({}, state, {
+        indicatorList: action.data.result,
         fetching: false
       });
     case TYPE_FETCH_COUNTRY_LIST:
@@ -35,6 +45,22 @@ export const reducer = (state=[], action) => {
       return Object.assign({}, state,{
         all: action.data.result,
         fetching: false
+      })
+    case TYPE_SET_COMPARE_COUNTRY:
+      return Object.assign({}, state, {
+        compareCountry: action.data
+      })
+    case TYPE_SET_COMPARE_INDICATOR:
+      return Object.assign({}, state,{
+        compareIndicator: action.data
+      })
+    case TYPE_UPDATE_COUNTRY_STORE:
+      return Object.assign({}, state,{
+        [action.data.Name]: action.data
+      })
+    case TYPE_SET_SHOW_GRAPH:
+      return Object.assign({},state,{
+        show: action.data
       })
     default:
       return state;
