@@ -42,6 +42,7 @@ class App extends Component {
     console.log("on app mount!")
     console.log(this.props)
     this.fetchCountryList()
+    this.fetchIndicatorList()
   }
 
   fetchCountryList(){
@@ -74,8 +75,8 @@ class App extends Component {
       actionFetchFail,
       actionUpdateIndicatorList 
     } = this.props.actions;
-    const {countryList} = this.props.state;
-    if(!countryList){
+    const {indicatorList} = this.props.state;
+    if(!indicatorList){
       actionFetchStart()
       fetch(ENDPOINT + '/indicator').then((response)=>{
         response.json().then((data) => {

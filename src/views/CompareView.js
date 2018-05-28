@@ -36,7 +36,12 @@ export default class CompareView extends Component{
     }
     if(!this.props.state || !this.props.state.indicatorList){
       this.props.fetchIndicatorList()
+      console.log({yes: this.props})
     }
+  }
+
+  componentDidUpdate(){
+    console.log({onupdate: this.props.state})
   }
 
   isReady(){
@@ -204,7 +209,7 @@ export default class CompareView extends Component{
       graphArray.push(this.indicator_set_to_graph(name,indicatorData, "year", "value", indicatorList[i]))
     }
     return graphArray.map((e)=> {
-      return <Collapsed key={e.id} uniqueName={e.id} body={() => e.graph} title = {e.title} parent = "#accordion" active={true} />
+      return <Collapsed key={e.id} uniqueName={e.id} body={() => e.graph} title = {e.title} parent = "#accordion" active={false} />
     })
   }
 
@@ -228,14 +233,29 @@ export default class CompareView extends Component{
                 <button className="btn-block btn-primary btn-large" onClick={this.onShow}> Compare</button>
               </div>
             </div>
-            <bt />
+            <br />
            </div>
            :
-           <div className='card-body'>
+           <div>
+            <h3 className='card-title'>
+              Country Compare View
+            </h3>
+            <br/>
+            <h5 className='card-title'>
+                Data Table
+              </h5>
+            <div className="card">
               <RankingView state={{
                 all: this.filterCountries(all)
               }}/>
+            </div>
+            <br/>
+            <h5 className='card-title'>
+                Line Graph
+            </h5>
+            <div className='card'>
               {this.makeGraph()}
+            </div>
            </div>
            }
         </div>
@@ -317,8 +337,8 @@ class IndicatorSelector extends Component{
     
     return result.map((x)=> {
       return {
-        label: x,
-        value: x
+        label: x.Name,
+        value: x.Name
       }
     })
   }

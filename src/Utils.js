@@ -31,6 +31,13 @@ export function makeData(len = 5553) {
   });
 }
 
+export function safeGet(obj, key){
+  if(!obj){
+    return undefined
+  }
+  return obj[key]
+}
+
 export const Logo = () =>
   <div style={{ margin: '1rem auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center'}}>
     For more examples, visit {''}

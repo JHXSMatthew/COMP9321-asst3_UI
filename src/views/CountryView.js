@@ -1,9 +1,10 @@
 import React,{Component} from 'react'
 import { Chart } from 'react-google-charts';
 
-import { ENDPOINT } from '../Utils'
+import { ENDPOINT ,safeGet } from '../Utils'
 import { actionUpdateCountryInfo } from '../reducers/actions';
 import LoadingView from '../components/LoadingView'
+
 
 
 class CountryView extends Component{
@@ -169,7 +170,7 @@ class CountryView extends Component{
       [2,3,4]
     ]
     const {state} = this.props
-    const {currentCountryInfo} = state
+    const {currentCountryInfo, indicatorList} = state
     var name = 'Default'
     var graphArray = []
     if(currentCountryInfo){
@@ -185,7 +186,7 @@ class CountryView extends Component{
     }
 
     graphArray = graphArray.map((e)=> {
-      return <Collapsed key={e.id} uniqueName={e.id} body={() => e.graph} title = {e.title} parent = "#accordion" active={true} />
+      return <Collapsed key={e.id} uniqueName={e.id} body={() => e.graph} title = {e.title} parent = "#accordion" active={false} />
     })
     console.log({t:"graph array", v: graphArray})
 
@@ -198,7 +199,7 @@ class CountryView extends Component{
               <div className="container">
                 <div className="row">
                   <div className="col">
-                    <CountryInfo countryInfo={currentCountryInfo} />
+                    <CountryInfo countryInfo={currentCountryInfo} indicatorList={indicatorList} />
                   </div>
                   <div className="col">
                     <img src={"https://maps.googleapis.com/maps/api/staticmap?center=" + name + "&zoom=4&size=400x340&key=AIzaSyBfvL8_gNAlyKFQbj7tWfKkOJpZcveBUXk"}/>    
@@ -279,38 +280,51 @@ class CountryInfo extends Component{
 
   }
 
+  
   render(){
     const {Name, CO2, Agriculture_Percentage, GINI, GNI, Population,Renewable_Percentage,Fossil_Fuel_Percentage, CH4} = this.props.countryInfo;
-    // const {gni, gini, rank_gni, rank_gini} = this.props.countryInfo.eco;
-    // const {co2, ch4 , rank_co2, rank_ch4} = this.props.countryInfo.env
-    // const {renewable, fossie_fuel, rank_renewable, rank_fossie_fuel} = this.props.countryInfo.eng
+    const {state} = this.props
+
+    let indicatorList = {}
+    if(this.props.indicatorList){
+      indicatorList = this.props.indicatorList
+      let indicatorObj = {}
+      for(let i in indicatorList){
+        indicatorObj[indicatorList[i].Name] = indicatorList[i]
+      }
+      indicatorList = indicatorObj
+    }
+    
+    console.log({indi: indicatorList})
+
     const {year, idx} = this.findYearToDisplay([CO2, Agriculture_Percentage, GNI, Population,Renewable_Percentage,Fossil_Fuel_Percentage, CH4])
-    console.log('year to display:' + year + ' idx:' + idx)
+    // console.log('year to display:' + year + ' idx:' + idx)
     return (
        <div>
       {/* //   <div className="card-body"> */}
           <h5 className="card-title">{Name} Information - {year}</h5>
           <CountryInfoAttribute key="1"
           mapping={[
-            {key:"Population", value: Population[idx]},
-            {key:"Agriculture Land", value: Agriculture_Percentage[idx]},
-            {key:"GNI", value: GNI[idx]},
-            {key: "GINI", value: this.getLatest(GINI)},
-            {key:"Ranking", value: {value:1}} //TODO: need the rank api.
+            {key:"Population", value: Population[idx], unit: safeGet(indicatorList["Population"], "Unit")},
+            {key:"Agriculture Land", value: Agriculture_Percentage[idx],  unit: safeGet(indicatorList["Agricultural Land"], "Unit")},
+            {key:"GNI", value: GNI[idx],  unit: safeGet(indicatorList["GNI"], "Unit")},
+            {key: "GINI", value: this.getLatest(GINI),  unit: safeGet(indicatorList["GINI"], "Unit")},
+            {key:"Ranking", value: {value:1}, notFormat: true} //TODO: need the rank api.
           ]} 
-          title="General" />
+          title="General" 
+          />
 
            <CountryInfoAttribute key="2"
           mapping={[
-            {key:"CO2",value: CO2[idx]},
-            {key:"CH4", value: CH4[idx]},
+            {key:"CO2",value: CO2[idx], unit: safeGet(indicatorList["CO2"], "Unit")},
+            {key:"CH4", value: CH4[idx], unit: safeGet(indicatorList["CH4"], "Unit")},
           ]} 
           title="Environmental Indicators" />
 
            <CountryInfoAttribute key="3"
           mapping={[
-            {key:"Renewable Energy",value: Renewable_Percentage[idx]},
-            {key:"Fossie Fuel", value: Fossil_Fuel_Percentage[idx]},
+            {key:"Renewable Energy Consumption",value: Renewable_Percentage[idx], unit: safeGet(indicatorList["Renewable Energy Consumption"], "Unit")},
+            {key:"Fossil Fuel Energy Consumption", value: Fossil_Fuel_Percentage[idx], unit: safeGet(indicatorList["Fossil Fuel Energy Consumption"], "Unit")},
           ]} 
           title="Enery Indicators" />
       {/* //   </div> */}
@@ -323,8 +337,11 @@ class CountryInfoAttribute extends Component{
   render(){
     const x = []
     //element = {year,value}
-    this.props.mapping.forEach(element => {
-      x.push( <li key={element.key} data-toggle="tooltip" data-placement="right" title={"In " + element.value.year}>{element.key}: {element.value.value}</li>) //second value for the 'real' value
+    this.props.mapping.forEach(element => {              
+      x.push( <li key={element.key} data-toggle="tooltip" data-placement="right" title={element.detail}>
+        {element.key}: <span style={{fontWeight: 900}}>{!element.notFormat?(element.value.value).toFixed(2):element.value.value}</span> <span style={{opacity: 0.5}}>{element.unit} </span>
+       
+      </li>) //second value for the 'real' value
     });
 
     return (
@@ -340,8 +357,22 @@ class CountryInfoAttribute extends Component{
 
 export class Collapsed extends Component{
 
+  constructor(props){
+    super(props)
+    this.state={
+      active: false
+    }
+  }
+
+  componentDidMount(){
+    this.setState({
+      active: this.props.active
+    })
+  }
+
+
   render(){
-    const {uniqueName, body, title, parent, active} = this.props;
+    const {uniqueName, body, title, parent} = this.props;
     const heading = uniqueName+"head";
     const collapses = uniqueName+"collapse";
 
@@ -349,15 +380,15 @@ export class Collapsed extends Component{
       <div className="card">
         <div className="card-header" id={heading}>
           <h5 className="mb-0">
-            <button className="btn btn-link collapsed" data-toggle="collapse" data-target={"#" + collapses} aria-expanded="false" aria-controls={collapses}>
+            <button className="btn btn-link collapsed" onClick={()=>{this.setState({active: !this.state.active})}}>
               {title}
             </button>
           </h5>
         </div>
-        <div id={collapses} className={"collapse " + (active?"show":"")} aria-labelledby={heading} data-parent={parent}>
+        <div id={collapses} className={"collapse " + (this.state.active?"show":"")} aria-labelledby={heading} data-parent={parent}>
           <div className="card-body">
             <div className="row col">
-              {body()}
+              {this.state.active?body():<div>loading</div>}
             </div>
           </div>
         </div>
@@ -368,6 +399,8 @@ export class Collapsed extends Component{
 
 
 export class LineCharWrapper extends Component{
+
+
   render(){
     const {schema, data, title, y_title, x_title} = this.props
     console.log(this.props)
@@ -398,6 +431,7 @@ export class LineCharWrapper extends Component{
 }
 
 class CountryInfoRankingChart extends Component{
+
   render(){
     const {data} = this.props
     return(
