@@ -3,7 +3,7 @@ import { Chart } from 'react-google-charts';
 import Select  from 'react-select'
 import 'react-select/dist/react-select.css';
 
-import { ENDPOINT } from '../Utils'
+import { ENDPOINT,safeGet } from '../Utils'
 import LoadingView from '../components/LoadingView'
 import RankingView from './RankingView'
 import {Collapsed, LineCharWrapper} from './CountryView'
@@ -66,7 +66,7 @@ export default class CompareView extends Component{
     }
   }
 
-  onShow(){
+  onShow(value){
     const {compareCountry, compareIndicator} = this.props.state
     if(!compareCountry || !compareIndicator){
       alert('Please select country and indicators to compare!')
@@ -77,7 +77,7 @@ export default class CompareView extends Component{
       return;
     }
     const {actionShowGraph} = this.props.actions
-    actionShowGraph(true)
+    actionShowGraph(value)
 
     //I am lazy
     if(!this.props.state || !this.props.state.all){
@@ -197,16 +197,40 @@ export default class CompareView extends Component{
   makeGraph(){
     const countries = this.filterCountries(this.props.state.all)
     const name = countries.map(x=>x.Name)
-    console.log({a:countries,v:name})
-    const indicatorList = this.props.state.compareIndicator
-    let graphArray = []
+    const compareIndicator = this.props.state.compareIndicator
+    const {indicatorList} = this.props.state
 
-    for(let i in indicatorList){
+    let indicatorObj = {}
+    if(indicatorList){
+      for(let i in indicatorList){
+        indicatorObj[indicatorList[i].Name] = indicatorList[i]
+      }
+    }
+
+    let graphArray = []
+    console.log({ajsidjai:compareIndicator,v:indicatorList, objj:indicatorObj })
+
+    for(let i in compareIndicator){
+      
       let indicatorData = []
       for(let j in countries){
-        indicatorData.push(countries[j][indicatorList[i]])
+        indicatorData.push(countries[j][compareIndicator[i]])
       }
-      graphArray.push(this.indicator_set_to_graph(name,indicatorData, "year", "value", indicatorList[i]))
+      let graphObj = this.indicator_set_to_graph(name,indicatorData, "year", safeGet(indicatorObj[compareIndicator[i]], "Unit"), compareIndicator[i])
+      console.log({gbh:graphObj})
+      graphObj = Object.assign({}, graphObj, {
+        graph: 
+        <div>
+          {graphObj.graph} 
+          <details>
+            <summary>What does this mean?</summary>
+            <p>
+              {safeGet(indicatorObj[compareIndicator[i]], "Details")}
+            </p>
+          </details>
+        </div>
+      })
+      graphArray.push(graphObj)
     }
     return graphArray.map((e)=> {
       return <Collapsed key={e.id} uniqueName={e.id} body={() => e.graph} title = {e.title} parent = "#accordion" active={false} />
@@ -215,7 +239,7 @@ export default class CompareView extends Component{
 
   render(){
     const {state} = this.props
-    const {compareCountry, countryList, indicatorList, all} = state
+    const {compareCountry, compareIndicator ,countryList, indicatorList, all} = state
     const {show} = state
 
     
@@ -224,13 +248,13 @@ export default class CompareView extends Component{
         <div className="container">
           {!show ? <div className='card-body'>
             <br/>
-            <CountrySelector setCountry={this.setCountry} country={countryList} />
+            <CountrySelector setCountry={this.setCountry} country={countryList} value={compareCountry}/>
             <br/>
-            <IndicatorSelector setIndicator={this.setIndicator} indicator={indicatorList}/>
+            <IndicatorSelector setIndicator={this.setIndicator} indicator={indicatorList} value={compareIndicator}/>
             <br />
             <div className="row justify-content-md-center">
-              <div className='col-2'>
-                <button className="btn-block btn-primary btn-large" onClick={this.onShow}> Compare</button>
+              <div className='col-4'>
+                <button className="btn-block btn-primary btn-lg" onClick={()=> this.onShow(true)}> Compare</button>
               </div>
             </div>
             <br />
@@ -238,7 +262,14 @@ export default class CompareView extends Component{
            :
            <div>
             <h3 className='card-title'>
-              Country Compare View
+              <div className='row'>
+                <div className="col">
+                  Country Compare View
+                </div>
+                <div className="col-md-1">
+                  <button className='btn-dark' onClick={()=>this.onShow(false)}>Back</button>
+                </div>
+              </div>
             </h3>
             <br/>
             <h5 className='card-title'>
@@ -275,12 +306,21 @@ class CountrySelector extends Component{
     this.getCountryOptions = this.getCountryOptions.bind(this);
   }
 
+  componentDidMount(){
+    if(this.props.value){
+      this.setState({
+        value: this.props.value.join(',')
+      })
+    }
+    
+  }
+
   handleSelectChange(value) {
     if(value){
-      if(value.split(',').length > 4){
-        alert('You may only choose 4 countries for now.')
-        return;
-      }
+      // if(value.split(',').length > 4){
+      //   alert('You may only choose 4 countries for now.')
+      //   return;
+      // }
     }
     this.setState({value});
     this.props.setCountry(value);
@@ -317,13 +357,22 @@ class IndicatorSelector extends Component{
     this.getIndicatorOptions = this.getIndicatorOptions.bind(this);
   }
 
-  handleSelectChange(value) {
-    if(value){
-      if(value.split(',').length > 4){
-        alert('You may only choose 4 indicators for now.')
-        return;
-      }
+  componentDidMount(){
+    if(this.props.value){
+      this.setState({
+        value: this.props.value.join(',')
+      })
     }
+    
+  }
+
+  handleSelectChange(value) {
+    // if(value){
+    //   if(value.split(',').length > 4){
+    //     alert('You may only choose 4 indicators for now.')
+    //     return;
+    //   }
+    // }
     this.setState({value});
     this.props.setIndicator(value);
   }

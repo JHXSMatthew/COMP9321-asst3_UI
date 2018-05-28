@@ -167,8 +167,10 @@ export default class RankingView extends React.Component {
     console.log(all)
     const countryViewTableData = this.parseTable(all,[])
     let size = 10
+    let showElse = true
     if(all && all.length < 10 && all.length){
       size = all.length
+      showElse = false
     }
     return (      
       <LoadingView fetching={!this.isReady()} type="spin" color="#0000ff">
@@ -176,6 +178,8 @@ export default class RankingView extends React.Component {
           data={countryViewTableData}
           columns={columns}
           filterable
+          showPageSizeOptions={showElse}
+          showPagination= {showElse}
           pageSize={size}
           className="-striped -highlight"
           noDataText= "Loading..."
