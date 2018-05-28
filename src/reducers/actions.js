@@ -54,6 +54,15 @@ export const actionUpdateAll = (data) =>{
   }
 }
 
+export const TYPE_UPDATE_SUMMARY = "TYPE_UPDATE_SUMMARY"
+export const actionUpdateSummary = (data) =>{
+  return {
+    type: TYPE_UPDATE_SUMMARY,
+    data: data
+  }
+}
+
+
 
 //for compare view state
 export const TYPE_SET_COMPARE_COUNTRY = "TYPE_SET_COMPARE_COUNTRY"

@@ -5,7 +5,9 @@ import Header from './components/Header';
 import HomeView from './views/HomeView';
 import CountryView from './views/CountryView';
 import RankingView from './views/RankingView';
-import CompareView from './views/CompareView'
+import CompareView from './views/CompareView';
+import AboutView from './views/AboutView';
+
 import {
   BrowserRouter as Router,
   Route,
@@ -36,6 +38,7 @@ class App extends Component {
     this.onCurrentCountrySelected = this.onCurrentCountrySelected.bind(this)
     this.fetchCountryList = this.fetchCountryList.bind(this)
     this.fetchIndicatorList = this.fetchIndicatorList.bind(this)
+    this.fetchSummaryList = this.fetchSummaryList.bind(this)
   }
 
   componentDidMount(){
@@ -43,6 +46,7 @@ class App extends Component {
     console.log(this.props)
     this.fetchCountryList()
     this.fetchIndicatorList()
+    // this.fetchSummaryList()
   }
 
   fetchCountryList(){
@@ -68,6 +72,33 @@ class App extends Component {
       })
     }    
   }
+
+
+  fetchSummaryList(){
+    const { 
+      actionFetchStart,
+      actionFetchFail,
+      actionUpdateSummary 
+    } = this.props.actions;
+    const {summaryList} = this.props.state;
+
+    if(!summaryList){
+      actionFetchStart()
+      fetch(ENDPOINT + '/analysis').then((response)=>{
+        response.json().then((data) => {
+          console.log(data)
+          actionUpdateSummary(data);
+        });
+      }).then((err)=>{
+        console.log(err)
+        actionFetchFail()
+      }).catch((err) =>{
+        console.log(err)
+        actionFetchFail()
+      })
+    }    
+  }
+
 
   fetchIndicatorList(){
     const { 
@@ -127,6 +158,7 @@ class App extends Component {
               <Route path="/country/:name" render = {(props) => <CountryView state={this.props.state} getCountryInfo={this.onCurrentCountrySelected} countryName={props.match.params.name}/>} />
               <Route exact path="/" render={()=> <HomeView countryList={this.props.state.countryList} onSearch={this.onCurrentCountrySelected}/>}/>
               <Route exact path="/compare" render={()=> <CompareView state={this.props.state} actions={this.props.actions} fetchCountryList={this.fetchCountryList}  fetchIndicatorList={this.fetchIndicatorList}/>}/>
+              <Route exact path="/about" render={()=><AboutView />}/>
             </Switch>          
 
       </div>

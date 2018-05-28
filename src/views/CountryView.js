@@ -45,24 +45,7 @@ class CountryView extends Component{
     let curr = []
     let year = 0
     let innerSize = dataList[0].length
-    // for(let i = 0; i < dataList.length ; i ++){
-    //   let year_value = dataList[i][0]
-    //   if(!year_value){
-    //     console.log('data err' + nameList[i])
-    //     console.log(dataList)
-    //     curr.push(0)
-    //   }
-    //   else if(year_value.value == -1){
-    //     curr.push(0)
-    //     console.log("data -1 " + nameList[i])
-    //     year = year_value.year
-    //   }else{
-    //     curr.push(year_value.value)
-    //     year = year_value.year
-    //   }
-    //   innerSize = Math.max(dataList[i].length, innerSize)
-    // }
-    // console.log(innerSize)
+    
     //compute all other data, will use previous one if no data avaliable for the year
     for(let i= 0 ; i < innerSize ; i ++){
       curr = []
@@ -174,6 +157,11 @@ class CountryView extends Component{
     var name = 'Default'
     var graphArray = []
 
+    //get graph and indicator
+    
+    let average = {}
+
+
     let indicatorObj = {}
     if(indicatorList){
       for(let i in indicatorList){
@@ -203,7 +191,6 @@ class CountryView extends Component{
             graphArray.push(graphObj)
           }
         }
-
       }
     }
 

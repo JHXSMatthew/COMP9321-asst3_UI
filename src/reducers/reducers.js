@@ -10,6 +10,7 @@ import {
   TYPE_SET_COMPARE_INDICATOR,
   TYPE_UPDATE_COUNTRY_STORE,
   TYPE_SET_SHOW_GRAPH,
+  TYPE_UPDATE_SUMMARY,
   actionUpdateCountryList,
   
 } from './actions'
@@ -61,6 +62,10 @@ export const reducer = (state=[], action) => {
     case TYPE_SET_SHOW_GRAPH:
       return Object.assign({},state,{
         show: action.data
+      })
+    case TYPE_UPDATE_SUMMARY:
+      return Object.assign({}, state, {
+        summaryList: action.data
       })
     default:
       return state;
