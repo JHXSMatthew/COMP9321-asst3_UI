@@ -228,7 +228,7 @@ class CountryView extends Component{
               <div className="container">
                 <div className="row">
                   <div className="col">
-                    <CountryInfo countryInfo={currentCountryInfo} indicatorList={indicatorList} />
+                    <CountryInfo state={this.props.state} countryInfo={currentCountryInfo} indicatorList={indicatorList} />
                   </div>
                   <div className="col">
                     <img src={"https://maps.googleapis.com/maps/api/staticmap?center=" + name + "&zoom=4&size=400x340&key=AIzaSyBfvL8_gNAlyKFQbj7tWfKkOJpZcveBUXk"}/>    
@@ -326,6 +326,15 @@ class CountryInfo extends Component{
     
     console.log({indi: indicatorList})
 
+    let overallRankForThis = 1
+    if(state && state.overallRanking){
+      try{
+        overallRankForThis = state.overallRanking[Name]
+      }catch(eeeee){
+
+      }
+    }
+
     const {year, idx} = this.findYearToDisplay([CO2, Agriculture_Percentage, GNI, Population,Renewable_Percentage,Fossil_Fuel_Percentage, CH4])
     console.log('year to display:' + year + ' idx:' + idx)
     return (
@@ -338,7 +347,7 @@ class CountryInfo extends Component{
             {key:"Agriculture Land", value: Agriculture_Percentage[idx],  unit: safeGet(indicatorList["Agriculture_Percentage"], "Unit"), detail: safeGet(indicatorList["Agriculture_Percentage"], "Details")},
             {key:"GNI", value: GNI[idx],  unit: safeGet(indicatorList["GNI"], "Unit"), detail: safeGet(indicatorList["GNI"], "Details")},
             {key: "GINI", value: this.getLatest(GINI),  unit: safeGet(indicatorList["GINI"], "Unit"), detail: safeGet(indicatorList["GINI"], "Details")},
-            {key:"Ranking", value: {value:1}, notFormat: true} //TODO: need the rank api.
+            {key:"Ranking", value: {value:overallRankForThis}, notFormat: true} //TODO: need the rank api.
           ]} 
           title="General" 
           />
