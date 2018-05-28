@@ -23,7 +23,7 @@ class CountryView extends Component{
   }
 
   isReady(){
-    return this.props.state && this.props.state.currentCountryInfo && !this.props.state.fetching
+    return this.props.state && this.props.state.currentCountryInfo && !this.props.state.fetching && this.props.state.indicatorList
   }
 
 
@@ -160,7 +160,7 @@ class CountryView extends Component{
     //get graph and indicator
     
     let average = {}
-    
+
 
     let indicatorObj = {}
     if(indicatorList){
@@ -197,7 +197,7 @@ class CountryView extends Component{
     graphArray = graphArray.map((e)=> {
       return <Collapsed key={e.id} uniqueName={e.id} body={() => e.graph} title = {e.title} parent = "#accordion" active={false} />
     })
-    console.log({t:"graph array", v: graphArray})
+    console.log({t:"state info", v: this.props, x: currentCountryInfo})
 
 
     return (
@@ -268,7 +268,7 @@ class CountryInfo extends Component{
     }
     let length = first.length
     let year = -1
-    let idx = -1
+    let idx = 0
     for(let i = 0 ; i < length ; i ++){
       let hasValue = false
       for(let j = 0 ; j < list.length ; j ++){
@@ -307,7 +307,7 @@ class CountryInfo extends Component{
     console.log({indi: indicatorList})
 
     const {year, idx} = this.findYearToDisplay([CO2, Agriculture_Percentage, GNI, Population,Renewable_Percentage,Fossil_Fuel_Percentage, CH4])
-    // console.log('year to display:' + year + ' idx:' + idx)
+    console.log('year to display:' + year + ' idx:' + idx)
     return (
        <div>
       {/* //   <div className="card-body"> */}
@@ -344,12 +344,20 @@ class CountryInfo extends Component{
 
 class CountryInfoAttribute extends Component{
   render(){
+    const getFormat = (z)=>{
+      try{
+        return z.toFixed(2)
+      }catch(c){
+        return 'N/A'
+      }
+    }
     const x = []
     //element = {year,value}
+    console.log({kkk:this.props.mapping})
     this.props.mapping.forEach(element => {              
       x.push( <li key={element.key}>
         <span data-toggle="tooltip" data-placement="right" title={element.detail}>
-          {element.key}: <span style={{fontWeight: 900}}>{!element.notFormat?(element.value.value).toFixed(2):element.value.value}</span> <span style={{opacity: 0.5}}>{element.unit} </span>
+          {element.key}: <span style={{fontWeight: 900}}>{!element.notFormat? getFormat((element.value.value)):element.value.value}</span> <span style={{opacity: 0.5}}>{element.unit} </span>
         </span>
        
       </li>) //second value for the 'real' value
