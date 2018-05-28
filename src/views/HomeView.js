@@ -1,6 +1,7 @@
 import React,{Component} from 'react'
 import CountryRankTable from '../components/CountryRankTable';
 import SearchBar from '../components/SearchBar';
+import LoadingView from '../components/LoadingView'
 import Logo from '../Vista-logo.png'
 
 import { makeData } from "../Utils";
@@ -37,10 +38,15 @@ export default class HomeView extends Component{
       value: ""
     }
     this.onUpdate = this.onUpdate.bind(this);
+    this.isReady = this.isReady.bind(this);
   }
 
   onUpdate(value){
     this.setState({value})
+  }
+
+  isReady(){
+    return this.props.overallRanking && this.props.countryList
   }
 
   render(){
@@ -54,24 +60,26 @@ export default class HomeView extends Component{
       }
     }
     return (
-      <div className="container">
-        <div className="row">
-            <div className='col d-flex justify-content-md-center'>
-            <img src={Logo} alt='yes?'/>
+      <LoadingView fetching={!this.isReady()} type="spin" color="#0000ff">
+        <div className="container">
+          <div className="row">
+              <div className='col d-flex justify-content-md-center'>
+              <img src={Logo} alt='yes?'/>
+            </div>
           </div>
-        </div>
-        <br/>
-        <div className="row" >
-          <SearchBar countryList={this.props.countryList} onUpdate={this.onUpdate} onClick={this.props.onSearch}/>
-        </div>
-        <br/>
-        <div className="row">
-          <div className="col">
-            <CountryRankTable columns={columns} data={data} flag={flag} />
+          <br/>
+          <div className="row" >
+            <SearchBar countryList={this.props.countryList} onUpdate={this.onUpdate} onClick={this.props.onSearch}/>
           </div>
-        </div>
+          <br/>
+          <div className="row">
+            <div className="col">
+              <CountryRankTable columns={columns} data={data} flag={flag} />
+            </div>
+          </div>
 
-      </div>
+        </div>
+      </LoadingView>
     );
   }
 }
